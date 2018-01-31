@@ -82,10 +82,10 @@ if(CMAKE_TIMING_VERBOSE AND UNIX)
 endif(CMAKE_TIMING_VERBOSE AND UNIX)
 
 # check for SSE flags
-include("${PCL_SOURCE_DIR}/cmake/pcl_find_sse.cmake")
-if (PCL_ENABLE_SSE)
-  PCL_CHECK_FOR_SSE()
-endif (PCL_ENABLE_SSE)
+#include("${PCL_SOURCE_DIR}/cmake/pcl_find_sse.cmake")
+#if (PCL_ENABLE_SSE)
+#  PCL_CHECK_FOR_SSE()
+#endif (PCL_ENABLE_SSE)
 
 # ---[ Unix/Darwin/Windows specific flags
 if(CMAKE_COMPILER_IS_GNUCXX)
@@ -386,7 +386,7 @@ if(WITH_PCAP)
 endif(WITH_PCAP)
 
 # OpenGL and GLUT
-include("${PCL_SOURCE_DIR}/cmake/pcl_find_gl.cmake")
+#include("${PCL_SOURCE_DIR}/cmake/pcl_find_gl.cmake")
 
 ### ---[ Create the config.h file
 set(pcl_config_h_in "${CMAKE_CURRENT_SOURCE_DIR}/pcl_config.h.in")

@@ -61,8 +61,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 bool
-pcl::io::LZFImageWriter::saveImageBlob (const char* data, 
-                                        size_t data_size, 
+pcl::io::LZFImageWriter::saveImageBlob (const char* data,
+                                        size_t data_size,
                                         const std::string &filename)
 {
 #ifdef _WIN32
@@ -116,8 +116,8 @@ pcl::io::LZFImageWriter::saveImageBlob (const char* data,
 
 //////////////////////////////////////////////////////////////////////////////
 pcl::uint32_t
-pcl::io::LZFImageWriter::compress (const char* input, 
-                                   uint32_t uncompressed_size, 
+pcl::io::LZFImageWriter::compress (const char* input,
+                                   uint32_t uncompressed_size,
                                    uint32_t width,
                                    uint32_t height,
                                    const std::string &image_type,
@@ -198,7 +198,7 @@ pcl::io::LZFImageWriter::writeParameter (const double &parameter,
   catch (std::exception& e)
   {}
 
-  boost::property_tree::xml_writer_settings<char> settings ('\t', 1);
+  auto settings = boost::property_tree::xml_writer_make_settings<std::string> ('\t', 1);
   pt.put (tag, parameter);
   write_xml (filename, pt, std::locale (), settings);
 
@@ -218,7 +218,7 @@ pcl::io::LZFDepth16ImageWriter::writeParameters (const pcl::io::CameraParameters
   catch (std::exception& e)
   {}
 
-  boost::property_tree::xml_writer_settings<char> settings ('\t', 1);
+  auto settings = boost::property_tree::xml_writer_make_settings<std::string> ('\t', 1);
   pt.put ("depth.focal_length_x", parameters.focal_length_x);
   pt.put ("depth.focal_length_y", parameters.focal_length_y);
   pt.put ("depth.principal_point_x", parameters.principal_point_x);
@@ -231,7 +231,7 @@ pcl::io::LZFDepth16ImageWriter::writeParameters (const pcl::io::CameraParameters
 
 //////////////////////////////////////////////////////////////////////////////
 bool
-pcl::io::LZFRGB24ImageWriter::write (const char *data, 
+pcl::io::LZFRGB24ImageWriter::write (const char *data,
                                      uint32_t width, uint32_t height,
                                      const std::string &filename)
 {
@@ -248,7 +248,7 @@ pcl::io::LZFRGB24ImageWriter::write (const char *data,
   }
 
   char* compressed_rgb = static_cast<char*> (malloc (size_t (float (rrggbb.size ()) * 1.5f + float (LZF_HEADER_SIZE))));
-  size_t compressed_size = compress (reinterpret_cast<const char*> (&rrggbb[0]), 
+  size_t compressed_size = compress (reinterpret_cast<const char*> (&rrggbb[0]),
                                      uint32_t (rrggbb.size ()),
                                      width, height,
                                      "rgb24",
@@ -279,7 +279,7 @@ pcl::io::LZFRGB24ImageWriter::writeParameters (const pcl::io::CameraParameters &
   catch (std::exception& e)
   {}
 
-  boost::property_tree::xml_writer_settings<char> settings ('\t', 1);
+  auto settings = boost::property_tree::xml_writer_make_settings<std::string> ('\t', 1);
   pt.put ("rgb.focal_length_x", parameters.focal_length_x);
   pt.put ("rgb.focal_length_y", parameters.focal_length_y);
   pt.put ("rgb.principal_point_x", parameters.principal_point_x);
@@ -291,7 +291,7 @@ pcl::io::LZFRGB24ImageWriter::writeParameters (const pcl::io::CameraParameters &
 
 //////////////////////////////////////////////////////////////////////////////
 bool
-pcl::io::LZFYUV422ImageWriter::write (const char *data, 
+pcl::io::LZFYUV422ImageWriter::write (const char *data,
                                       uint32_t width, uint32_t height,
                                       const std::string &filename)
 {
@@ -310,7 +310,7 @@ pcl::io::LZFYUV422ImageWriter::write (const char *data,
   }
 
   char* compressed_yuv = static_cast<char*> (malloc (size_t (float (uuyyvv.size ()) * 1.5f + float (LZF_HEADER_SIZE))));
-  size_t compressed_size = compress (reinterpret_cast<const char*> (&uuyyvv[0]), 
+  size_t compressed_size = compress (reinterpret_cast<const char*> (&uuyyvv[0]),
                                      uint32_t (uuyyvv.size ()),
                                      width, height,
                                      "yuv422",
@@ -330,7 +330,7 @@ pcl::io::LZFYUV422ImageWriter::write (const char *data,
 
 //////////////////////////////////////////////////////////////////////////////
 bool
-pcl::io::LZFBayer8ImageWriter::write (const char *data, 
+pcl::io::LZFBayer8ImageWriter::write (const char *data,
                                       uint32_t width, uint32_t height,
                                       const std::string &filename)
 {
@@ -396,10 +396,10 @@ pcl::io::LZFImageReader::loadImageBlob (const std::string &filename,
   pcl_lseek (fd, 0, SEEK_SET);
 
 #ifdef _WIN32
-  // As we don't know the real size of data (compressed or not), 
+  // As we don't know the real size of data (compressed or not),
   // we set dwMaximumSizeHigh = dwMaximumSizeLow = 0 so as to map the whole file
   HANDLE fm = CreateFileMapping ((HANDLE) _get_osfhandle (fd), NULL, PAGE_READONLY, 0, 0, NULL);
-  // As we don't know the real size of data (compressed or not), 
+  // As we don't know the real size of data (compressed or not),
   // we set dwNumberOfBytesToMap = 0 so as to map the whole file
   char *map = static_cast<char*>(MapViewOfFile (fm, FILE_MAP_READ, 0, 0, 0));
   if (map == NULL)
@@ -460,7 +460,7 @@ pcl::io::LZFImageReader::loadImageBlob (const std::string &filename,
 
   data.resize (compressed_size);
   memcpy (&data[0], &map[header_size], compressed_size);
- 
+
 #ifdef _WIN32
   UnmapViewOfFile (map);
   CloseHandle (fm);
@@ -484,9 +484,9 @@ pcl::io::LZFImageReader::decompress (const std::vector<char> &input,
     PCL_ERROR ("[pcl::io::LZFImageReader::decompress] Output array needs to be preallocated! The correct uncompressed array value should have been stored during the compression.\n");
     return (false);
   }
-  unsigned int tmp_size = pcl::lzfDecompress (static_cast<const char*>(&input[0]), 
-                                              uint32_t (input.size ()), 
-                                              static_cast<char*>(&output[0]), 
+  unsigned int tmp_size = pcl::lzfDecompress (static_cast<const char*>(&input[0]),
+                                              uint32_t (input.size ()),
+                                              static_cast<char*>(&output[0]),
                                               uint32_t (output.size ()));
 
   if (tmp_size != output.size ())
@@ -526,8 +526,8 @@ pcl::io::LZFRGB24ImageReader::readParameters (std::istream& is)
   parameters_.focal_length_y = tree.get ().get<double>("focal_length_y");
   parameters_.principal_point_x = tree.get ().get<double>("principal_point_x");
   parameters_.principal_point_y = tree.get ().get<double>("principal_point_y");
-  PCL_DEBUG ("[pcl::io::LZFRGB24ImageReader::readParameters] Read camera parameters (fx,fy,cx,cy): %g,%g,%g,%g.\n", 
-      parameters_.focal_length_x, parameters_.focal_length_y, 
+  PCL_DEBUG ("[pcl::io::LZFRGB24ImageReader::readParameters] Read camera parameters (fx,fy,cx,cy): %g,%g,%g,%g.\n",
+      parameters_.focal_length_x, parameters_.focal_length_y,
       parameters_.principal_point_x, parameters_.principal_point_y);
   return (true);
 }
@@ -548,10 +548,9 @@ pcl::io::LZFDepth16ImageReader::readParameters (std::istream& is)
   parameters_.principal_point_x = tree.get ().get<double>("principal_point_x");
   parameters_.principal_point_y = tree.get ().get<double>("principal_point_y");
   z_multiplication_factor_ = tree.get ().get<double>("z_multiplication_factor");
-  PCL_DEBUG ("[pcl::io::LZFDepth16ImageReader::readParameters] Read camera parameters (fx,fy,cx,cy): %g,%g,%g,%g.\n", 
-      parameters_.focal_length_x, parameters_.focal_length_y, 
+  PCL_DEBUG ("[pcl::io::LZFDepth16ImageReader::readParameters] Read camera parameters (fx,fy,cx,cy): %g,%g,%g,%g.\n",
+      parameters_.focal_length_x, parameters_.focal_length_y,
       parameters_.principal_point_x, parameters_.principal_point_y);
   PCL_DEBUG ("[pcl::io::LZFDepth16ImageReader::readParameters] Multiplication factor: %g.\n", z_multiplication_factor_);
   return (true);
 }
-

@@ -6,23 +6,25 @@
 # QHULL_INCLUDE_DIRS - Directories containing the QHULL include files.
 # QHULL_LIBRARIES - Libraries needed to use QHULL.
 # QHULL_DEFINITIONS - Compiler flags for QHULL.
-# If QHULL_USE_STATIC is specified then look for static libraries ONLY else 
+# If QHULL_USE_STATIC is specified then look for static libraries ONLY else
 # look for shared ones
 
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
 set(QHULL_MAJOR_VERSION 6)
 
 if(QHULL_USE_STATIC)
+
   set(QHULL_RELEASE_NAME qhullstatic)
   set(QHULL_DEBUG_NAME qhullstatic_d)
 else(QHULL_USE_STATIC)
   set(QHULL_RELEASE_NAME qhull_p qhull${QHULL_MAJOR_VERSION} qhull)
   set(QHULL_DEBUG_NAME qhull_pd qhull${QHULL_MAJOR_VERSION}_d qhull_d${QHULL_MAJOR_VERSION} qhull_d)
 endif(QHULL_USE_STATIC)
-
 find_file(QHULL_HEADER
           NAMES libqhull/libqhull.h qhull.h
           HINTS "${QHULL_ROOT}" "$ENV{QHULL_ROOT}" "${QHULL_INCLUDE_DIR}"
-          PATHS "$ENV{PROGRAMFILES}/QHull" "$ENV{PROGRAMW6432}/QHull" 
+          PATHS "$ENV{PROGRAMFILES}/QHull" "$ENV{PROGRAMW6432}/QHull"
           PATH_SUFFIXES qhull src/libqhull libqhull include)
 
 set(QHULL_HEADER "${QHULL_HEADER}" CACHE INTERNAL "QHull header" FORCE )
@@ -43,18 +45,18 @@ endif(QHULL_HEADER)
 
 set(QHULL_INCLUDE_DIR "${QHULL_INCLUDE_DIR}" CACHE PATH "QHull include dir." FORCE)
 
-find_library(QHULL_LIBRARY 
+find_library(QHULL_LIBRARY
              NAMES ${QHULL_RELEASE_NAME}
              HINTS "${QHULL_ROOT}" "$ENV{QHULL_ROOT}"
-             PATHS "$ENV{PROGRAMFILES}/QHull" "$ENV{PROGRAMW6432}/QHull" 
+             PATHS "$ENV{PROGRAMFILES}/QHull" "$ENV{PROGRAMW6432}/QHull"
              PATH_SUFFIXES project build bin lib)
 
 get_filename_component(QHULL_LIBRARY_NAME "${QHULL_LIBRARY}" NAME)
 
-find_library(QHULL_LIBRARY_DEBUG 
+find_library(QHULL_LIBRARY_DEBUG
              NAMES ${QHULL_DEBUG_NAME} ${QHULL_RELEASE_NAME}
              HINTS "${QHULL_ROOT}" "$ENV{QHULL_ROOT}"
-             PATHS "$ENV{PROGRAMFILES}/QHull" "$ENV{PROGRAMW6432}/QHull" 
+             PATHS "$ENV{PROGRAMFILES}/QHull" "$ENV{PROGRAMW6432}/QHull"
              PATH_SUFFIXES project build bin lib)
 
 if(NOT QHULL_LIBRARY_DEBUG)
